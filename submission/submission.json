@@ -6,12 +6,12 @@
     "NguyenTheHoang-2A202603718",
     "DangDucCuong-2A202603680"
   ],
-  "incident": "",
-  "decision_v1": "",
-  "decision_v2": "",
+  "incident": "S8",
+  "decision_v1": "Tiếp tục",
+  "decision_v2": "Thu hẹp",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+  "environment_assumption": "Nhân viên sẽ tin quyết định tự động nếu mã duyệt hợp lệ và có ghi chú giải thích.",
+  "reduce_or_prevent": "Cổng kiểm tra phê duyệt ngăn khoản chi sai điều kiện; monitor chỉ cảnh báo hàng chờ ùn.",
+  "measure_in_pilot": "Đo tỷ lệ kiểm lại, thời gian chờ, phê duyệt không hợp lệ và chi phí mỗi ticket."
   }
 }

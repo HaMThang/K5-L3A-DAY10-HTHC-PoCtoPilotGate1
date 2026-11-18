@@ -7,13 +7,17 @@
     "roi_min": null
   },
   "operations": {
-    "pic": "",
-    "approver_id": "",
+    "pic": "NV-TUNG",
+    "approver_id": "NV-HANH",
     "reviewers_on_shift": 1,
     "review_capacity_per_hour": null,
     "max_queue_wait_minutes": null,
-    "stop_conditions": [],
-    "alert_channel": "",
+    "stop_conditions": [
+      "Khi phát hiện 1 lỗi ghi oan cho hãng hoặc 1 lần lộ dữ liệu cá nhân, NV-TUNG tắt ngay thao tác ghi tương ứng (file_carrier_fault hoặc notify_carrier), báo kênh ops-alerts và chuyển ca liên quan cho người xử lý.",
+      "Khi khoản hoàn dùng phê duyệt sai ticket/đơn/khách, hết hạn, bị thu hồi hoặc vượt max_vnd, NV-TUNG tạm dừng issue_refund tự động; NV-HANH xác minh phê duyệt trước khi bật lại.",
+      "Khi có ca chờ người duyệt quá 60 phút, NV-TUNG dừng nhận thêm ca tự động hoặc thu hẹp pilot, báo ops-alerts; chỉ mở lại khi hàng chờ về trong SLA."
+    ],
+    "alert_channel": "ops-alerts",
     "decision_note": false,
     "review_sampling_pct": 0
   },

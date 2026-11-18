@@ -7,3 +7,4 @@ __pycache__/
 # Môi trường ảo và cấu hình editor của từng máy
 .venv*/
 .vscode/
+.venv311/

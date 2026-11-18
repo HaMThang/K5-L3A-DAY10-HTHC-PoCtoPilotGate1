@@ -81,26 +81,26 @@ Ba loại lỗi:
 
 | # | Lỗi: người ta thấy gì (dán dòng trace / sổ cái) | Ai gặp, ai chịu | Hệ trọng (thấp / cao) | Loại lỗi (giới hạn hệ thống / ngữ cảnh / chìm) |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 | `T-002@55`: trace ghi `tracking.db_delay_days=2`, nhưng `model_override` dùng số khách khai 5; `proposal` và `issue_refund` ghi 20.000đ. Report: `wrongful_refund_vnd=20000`; chính sách `REFUND-v3` yêu cầu trễ ít nhất 3 ngày. | LogiX mất 20.000đ; kế toán phải xử lý khoản hoàn không có quyền lợi. | Cao | Lỗi chìm: trợ lý ghi hoàn thành công, khách nhận tiền, nhưng hệ thống không nhận ra khoản hoàn sai. |
+| 2 | `T-002@55`: cùng `model_override` (DB 2, ticket 5) dẫn tới `file_carrier_fault` cho `VNX` / `O-1002-P1` với `delay_days=5`; tracking chỉ ghi trễ 2 ngày. Report: `wrongful_carrier_faults=1`. | Hãng VNX chịu lỗi ghi oan; LogiX chịu rủi ro tranh chấp và mất lòng tin đối tác. | Cao | Lỗi chìm: lệnh ghi lỗi hãng và thông báo đều thành công, nhưng hệ thống không phát hiện căn cứ sai. |
 
 ### Phần 2 · Tìm nguồn (đánh dấu câu nào đúng với từng lỗi)
 
 | Câu hỏi | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | | |
-| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | | |
-| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | | |
-| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | | |
+| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | ✓ — tin số 5 ngày khách khai thay cho tracking 2 ngày | ✓ — số ngày bị ghi vào lỗi hãng cũng lấy theo lời khai 5 ngày |
+| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | — tracking và policy cần thiết đều có trong trace | — tracking và `delay_cause` có sẵn; lỗi do dùng sai độ trễ |
+| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | — không thấy xung đột người ghi trong trace này | — không thấy xung đột người ghi trong trace này |
+| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | — không có lỗi dịch vụ/LLM trong trace | — không có lỗi dịch vụ/LLM trong trace |
 
 ### Phần 3 · Hướng xử lý (mỗi lỗi một ô)
 
 | | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| Vì sao người gặp coi đây là lỗi | | |
-| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | | |
-| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | | |
-| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | | |
+| Vì sao người gặp coi đây là lỗi | Trễ 2 ngày thấp hơn ngưỡng 3 ngày của `REFUND-v3`, nên không đủ điều kiện hoàn; LogiX mất 20.000đ và sổ phải điều chỉnh. | Tracking không xác nhận lỗi hãng ở mức trễ 2 ngày; VNX bị ghi một lỗi không đủ căn cứ. |
+| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | Khác: cổng tính lại quyền lợi từ tracking và policy; nếu lời khai khác DB thì chuyển người, không tự ghi hoàn. | Khác: cổng trước `file_carrier_fault` xác minh kiện, hãng, nguyên nhân và độ trễ từ tracking; từ chối hoặc chuyển người nếu không đủ căn cứ. |
+| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | Ticket có chênh lệch được đưa cho CSKH kiểm tra tracking/policy → người duyệt quyết định → trợ lý chỉ trả lời theo quyết định, không ghi tiền trước khi đủ căn cứ. | Không gửi lỗi hãng khi chưa xác minh → nhân viên kiểm tra tracking và nguyên nhân → chỉ ghi/gửi cho hãng nếu người có thẩm quyền xác nhận đủ căn cứ. |
+| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | `model_override_rate`: tỷ lệ trial có sự kiện `model_override`; đây là tín hiệu cần rà soát, không tự kết luận mọi override đều sai. | `carrier_fault_rate`: tỷ lệ trial có lệnh ghi lỗi hãng; cần đối chiếu trace với tracking vì metric này đo số lần ghi, không đo tính đúng của lỗi. |
 
 **Ví dụ (bộ nền, đừng chép):** `T-002@55` · sổ cái có dòng hoàn 20.000đ, hãng VNX nhận một lỗi, trong khi tracking ghi trễ 2 ngày ·
 khách không thấy gì sai, hãng chịu · cao · **lỗi chìm**. Nguồn: đầu vào (đặt sai trọng số cho con số khách tự khai). Xử lý:
