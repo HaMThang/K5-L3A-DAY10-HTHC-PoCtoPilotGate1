@@ -29,7 +29,7 @@ Mọi con số trong quyết định Gate 1 phải trỏ về một dòng ở đ
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | base · base | (baseline, chưa có cổng) | | | | | |
+| 1 | `R-base-before-20261118-160341-a80d7e` | base · before (mốc base) | Baseline, chưa có cổng | 0.9909 (95% CI: 0.9727–1.0000) | 0.9545 | 20.000đ · 1 · 0 | 0.2273 | Chưa an toàn: pass_rate và pass_k đạt ngưỡng đã ký, PII = 0; nhưng hoàn sai 20.000đ và 1 lỗi hãng oan đều vượt ngưỡng 0. |
 | 2 | | base · after | (cổng vòng 1, thử trước khi chốt) | | | | | |
 | 3 | | base · prepared | (cổng vòng 1 đã chốt) | | | | | |
 | 4 | | | | | | | | |
@@ -54,7 +54,7 @@ python3 -m lab10.gate --run runs/<mã lần chạy>/report.json
 
 | Lý lẽ ủng hộ tự chặn | Lý lẽ phản đối |
 |---|---|
-| | |
+| Report cho thấy hoàn sai 20.000đ và 1 lỗi ghi oan cho hãng, trong khi cả hai ngưỡng an toàn đã ký đều bằng 0; tự chặn sẽ ngăn phát hành khi có thiệt hại tiền hoặc bên thứ ba. | Bộ nền có 110 lượt chạy nhưng chỉ 22 ticket; một lỗi (T-002@55) kéo theo kết quả chưa đạt, nên chặn cứng toàn bộ có thể giữ lại cả các ca hợp lệ. Cần chuyển các ca có dấu hiệu bất thường cho người duyệt và kiểm tra tính ổn định trên bộ sự cố trước khi quyết định phạm vi phát hành. |
 
 Khuyến nghị (khoanh một): **tự chặn · người duyệt · kết hợp**. Vì: …
 
