@@ -251,15 +251,11 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
 |---|---|---|---|
-| | Kỹ thuật | | |
-| | Kinh doanh | | |
-| | Con người và vận hành | | |
-| | Pháp lý | | |
+| Trợ lý đã tin số ngày khách tự khai (5 ngày) thay vì tracking (2 ngày), rồi hoàn sai 20.000đ và ghi một lỗi oan cho VNX ở `T-002@55`. | Kỹ thuật | Trace `runs/R-base-before-20261118-160341-a80d7e/traces/T-002@55.json`: `model_override` (DB 2, ticket 5), `issue_refund` 20.000đ và `file_carrier_fault` cho VNX; report ghi `wrongful_refund_vnd=20000`, `wrongful_carrier_faults=1`. | **Cổng code đề xuất:** trong `write_gate`, xác minh số ngày, tiền hoàn và lỗi hãng với tracking/policy nguồn; nếu khác thì chuyển người, không ghi. |
+| Pilot đã chạy trên toàn phạm vi dù một phân khúc kho `?` tốn 10.359đ/ticket, cao hơn làm tay 10.000đ/ticket; chi phí ở một phần phạm vi đã làm mất hiệu quả kinh doanh. | Kinh doanh | `runs/R-base-before-20261118-160341-a80d7e/report.json`: chi phí bình quân 4.203đ/ticket, ROI 1,34; phân khúc kho `?` là 10.359đ/ticket và `worse_than_manual=true`; `config/operating_gates.json` hiện để `pilot_scope=all`. | **Cổng config / risk register:** C và bàn chọn phạm vi pilot theo số liệu từng kho ở B7.4; loại kho không đạt hiệu quả khỏi `business.pilot_scope`, rồi đo lại chi phí và ROI. |
+| Khi lượng ticket tăng gấp ba, một người duyệt với công suất 6 ca/giờ đã không xử lý kịp; hàng chờ vượt SLA và nhân viên quay lại kiểm tay mọi quyết định. | Con người và vận hành | `data/world.json` → `ops_facts` (công suất duyệt 6 ca/giờ/người); report baseline có `review_rate=0.2273`, một người trực; thử kịch bản giờ cao điểm gấp ba theo yêu cầu HAZOP/B7.6 và theo dõi `queue_wait_min`, `queue_stuck`. | **Cổng config / risk register:** đặt giới hạn chờ và điều kiện dừng trong `operations`; quy định người gọi hỗ trợ/thu hẹp khi vượt ngưỡng ở B7.6. Chưa đặt số khi D và cả bàn chưa thống nhất. |
+| Trợ lý đã chuyển nguyên văn `customer_note` sang hãng; khách có thể ghi thông tin cá nhân của mình hoặc người khác trong nội dung đó mà chưa được lọc. | Pháp lý | Trace `T-002@55` → sự kiện `notify_carrier` có `payload.customer_note`; report hiện `pii_leaks=0` nhưng bộ đo chỉ nhận diện một số trường, nên không chứng minh nội dung tự do đã sạch PII. `config/operating_gates.json` hiện chưa chặn trường nào. | **Cổng config/code đề xuất:** bỏ `customer_note` khỏi payload gửi hãng (hoặc chặn bằng `legal.pii_fields_blocked_to_third_party`) và chỉ gửi trường tối thiểu cần thiết; ghi nhận đây là rủi ro pháp lý cần bàn xác nhận. |
 | | | | |
-
-**Đầu vào của người C cho buổi pre-mortem:** Pilot đã tốn hơn làm tay vì nhiều ca vẫn cần duyệt, mỗi ca duyệt tốn 10.000 đồng và phần đọc bằng máy vẫn phát sinh chi phí. Đối chiếu tỉ lệ chuyển duyệt, chi phí/ticket và ROI theo kho trong report mốc base. Dùng phạm vi pilot và ngưỡng chi phí/ROI ở B7.4 để quyết định có thu hẹp hoặc cải tiến thêm. Người D ghi kết luận sau khi cả bàn thống nhất.
-
----
 
 <a id="b7"></a>
 
