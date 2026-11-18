@@ -2,7 +2,7 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm (`HTHC`, không dấu, không khoảng trắng):
+- Tên nhóm (`HTHC`):
 - Lớp: `L3A`
 - Repo của bàn: `K5-<L3A|L3B>-DAY10-<TenNhom>-PoCtoPilotGate1`
 - Thẻ sự cố đã bốc (S1–S8):
