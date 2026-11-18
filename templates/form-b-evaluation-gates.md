@@ -1,6 +1,6 @@
 # Phiếu B · Đo, rủi ro, cổng vòng 1 và quyết định v1 · Khối 2A + 2B + chốt (phút 65–115)
 
-**Bàn:** ______
+**Bàn:** HTHC
 
 Tiêu chí đã ký ở Phiếu A. Từ phút 65 bàn mới được chạy trợ lý. Khối 2A (65–85) chưa sửa code hay config. Khối 2B (85–105) sửa
 `lab10/guards.py` và `config/operating_gates.json`. Phút 105–115 chốt cổng vòng 1 rồi viết quyết định v1. Sau phút 115 không sửa phiếu này
@@ -120,24 +120,22 @@ Gợi ý: mở `data/world.json` phần `policies`, `orders[].parcels`, `ops_lim
 
 | Mục | Điền cho trợ lý hoàn tiền |
 |---|---|
-| Người dùng | |
-| Việc người dùng cần làm xong | |
-| Đầu ra của hệ thống (kể cả các lệnh ghi) | |
-| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | |
-| Trường then chốt quyết định tiền và lỗi hãng | |
-| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | |
-| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | |
-| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | |
-| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | |
+| Người dùng | Khách gửi yêu cầu hoàn phí và nhân viên CSKH nhận ca cần duyệt. Kế toán, hãng và shop sử dụng kết quả để đối soát. |
+| Việc người dùng cần làm xong | Khách nhận quyết định hoàn phí có lý do. CSKH có căn cứ để duyệt hoặc giải thích. Kế toán truy được căn cứ của khoản hoàn và lỗi ghi cho hãng. |
+| Đầu ra của hệ thống (kể cả các lệnh ghi) | Trả lời khách (`send_reply`) hoặc chuyển người duyệt. Khi đủ điều kiện, ghi khoản hoàn (`issue_refund`), ghi lỗi hãng (`file_carrier_fault`) và gửi thông báo (`notify_carrier`). |
+| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | `orders` và `orders[].parcels`, `policies`, `approvals`. Cổng và mô phỏng vận hành còn dùng `ops_limits`, `ops_facts` và sổ cái. Nội dung khách khai đến từ ticket. |
+| Trường then chốt quyết định tiền và lỗi hãng | `parcels[].promised_date`, `delivered_date`, `delay_cause`, `carrier_id`; `shipping_fee_vnd`, `goods_value_vnd`; `policies[].late`, `auto_limit_vnd`, `fault_causes`; mã, trạng thái và phạm vi phê duyệt. |
+| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | Mốc cam kết và phí lấy từ hệ thống đơn hàng lúc xác nhận đơn. Tracking cập nhật ngày giao, nguyên nhân và hãng theo từng kiện khi có sự kiện. Bản chính sách có khoảng hiệu lực là căn cứ, còn `index_active` là cờ tra cứu có thể cập nhật trễ. Người duyệt cập nhật bản ghi phê duyệt. `refund_status` là bản sao cập nhật theo lô đêm, còn khoản đã hoàn cần đối chiếu sổ cái. |
+| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | Ngày dạng `YYYY-MM-DD`. Code lấy `as_of` khi thiếu `delivered_date`. `delay_cause` có thể trống, cần xác minh trước khi quy lỗi. Với đơn nhiều kiện, code tính độ trễ từng kiện và lấy kiện trễ nhất. |
+| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | Quét giao hàng có thể tới muộn vào giờ cao điểm, nguyên nhân có thể thiếu khi nhập tay, còn chỉ mục chính sách có thể chưa đổi cờ vào ngày hiệu lực. |
+| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | Hệ thống tính số ngày từ ngày cam kết đến ngày giao ghi trong tracking, dùng ngày đánh giá nếu chưa có ngày giao, rồi lấy độ trễ lớn nhất trong các kiện. Có thể đối chiếu sự kiện `tracking` và `proposal.delay_days_used` để biết trợ lý đã dùng con số nào. |
 
 **Tóm lại (điền vào chỗ trống):**
-Trợ lý dùng `__________`, `__________`, `__________` để giúp `__________` làm được `__________`.
-Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `__________`, `__________`.
-Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: `__________`. Dấu hiệu nhìn thấy sớm nhất: `__________`.
+Trợ lý dùng tracking, chính sách có hiệu lực và phê duyệt để giúp CSKH xử lý yêu cầu hoàn phí có căn cứ.
+Sai `delivered_date` có thể làm sai tiền hoàn. Sai `delay_cause` hoặc `carrier_id` có thể làm ghi lỗi oan.
+Khi đổi chính sách, dấu hiệu sớm là `policy_id` trong trace khác phiên bản có hiệu lực theo ngày đánh giá.
 
-**Ví dụ drift trong 3 tháng tới** (lấy từ dòng "thế giới thật làm dữ liệu lệch"): cái gì đổi `____` · đổi ngày nào `____` ·
-trường nào cho thấy `____` · con số nào của Bản tiêu chí bị ảnh hưởng `____`.
-Đây là đầu vào đổi hay quan hệ vào–ra đổi? Chỉ số nào sẽ phát hiện? `__________`
+**Ví dụ drift trong 3 tháng tới.** Từ **01/12/2026**, `REFUND-v4` thay `REFUND-v3`. Ngưỡng hoàn phí giảm từ 3 xuống 2 ngày (`late.min_days_fee`), và `FORCE_MAJEURE` rời danh sách `fault_causes`. Một kiện trễ 3 ngày do bất khả kháng vẫn có thể được hoàn phí, nhưng v4 không ghi lỗi hãng. Nếu `index_active` vẫn trỏ v3 sau mốc `effective_from` của v4, chỉ số `wrongful_carrier_faults_max` có thể trượt ngưỡng 0. Đây là thay đổi quan hệ đầu vào–đầu ra. Đo tỉ lệ trace có `policy_id` khác chính sách có hiệu lực trên các ca tới bước chọn chính sách, rồi kiểm số lỗi hãng oan trên bộ thử có ca bất khả kháng.
 
 **Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn
 sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
@@ -257,6 +255,8 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 | | Pháp lý | | |
 | | | | |
 
+**Đầu vào của người C cho buổi pre-mortem:** Pilot đã tốn hơn làm tay vì nhiều ca vẫn cần duyệt, mỗi ca duyệt tốn 10.000 đồng và phần đọc bằng máy vẫn phát sinh chi phí. Đối chiếu tỉ lệ chuyển duyệt, chi phí/ticket và ROI theo kho trong report mốc base. Dùng phạm vi pilot và ngưỡng chi phí/ROI ở B7.4 để quyết định có thu hẹp hoặc cải tiến thêm. Người D ghi kết luận sau khi cả bàn thống nhất.
+
 ---
 
 <a id="b7"></a>
@@ -308,10 +308,10 @@ Mỗi con số kèm một câu lý do, lấy từ `data/world.json` → `ops_lim
 
 | Khoá | Giá trị bàn đặt | Lý do (một câu, có số) |
 |---|---|---|
-| `business.daily_refund_cap_vnd` | | |
-| `business.cost_budget_per_ticket_vnd` | | |
-| `business.pilot_scope` (all / warehouse / percent) | | |
-| `business.roi_min` | | |
+| `business.daily_refund_cap_vnd` | Đề xuất `1500000` | Trần 1.500.000 đồng hoàn tự động/ngày giữ lại biên 500.000 đồng so với ngân sách 2.000.000 đồng/ngày của Finance trong `ops_limits`. |
+| `business.cost_budget_per_ticket_vnd` | Đề xuất `1500` | Đặt trần tiền máy theo `ops_limits.max_llm_cost_per_ticket_vnd`; tiếp tục so tổng chi phí bình quân (gồm ca người duyệt) với ngưỡng 9.000 đồng/ticket ở Phiếu A. |
+| `business.pilot_scope` (all / warehouse / percent) | Đề xuất `{"mode":"warehouse","warehouses":["HN","HCM"],"percent":100}` | Giới hạn pilot ở 2 depot đơn lẻ Hà Nội và TP.HCM, phù hợp phạm vi 2 depot đã nêu ở A2. Các depot còn lại xử lý tay. Đối chiếu lượng ca chuyển duyệt ở 2 depot với công suất 6 ca/giờ/người và SLA 60 phút. |
+| `business.roi_min` | Đề xuất `0.10` | Yêu cầu tiết kiệm ròng ít nhất 0,10 đồng cho mỗi đồng chi phí pilot, so với phương án làm tay 10.000 đồng/ticket trong `ops_facts`. |
 
 ### B7.5 · Câu 2.10 · Cổng con người, vận hành, pháp lý + Runbook phần 1–3
 
@@ -405,9 +405,11 @@ bao nhiêu thời gian? (3) Có phần nào của dự án không nên làm ti�
 | Nếu Thu hẹp: cắt phần nào, vì sao | |
 | Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | |
 | Nếu Dừng: bài học ghi lại | |
-| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | |
-| Ngày quyết định lại (trừ khi Dừng) | |
+| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | Chi phí thực tế và thời gian chờ duyệt trong ca cao điểm tại hai depot, gồm công duyệt, công kiểm lại và phí trực. Bộ nền chỉ cung cấp số mô phỏng. |
+| Ngày quyết định lại (trừ khi Dừng) | Dự kiến 25/11/2026 theo A4, chờ cả bàn xác nhận khi chốt v1. |
 | PIC ký | |
+
+**Bàn giao để chốt v1:** Người A gửi commit ký, hash cổng và report `base` / `prepared` từ máy chính. Người C dùng `prepared` để ghi ba bằng chứng, mỗi dòng có mã lần chạy: (1) các ngưỡng bắt buộc, gồm độ ổn định và an toàn, (2) chi phí/ticket, ROI và tổng hoàn tự động, (3) hàng chờ và kho hoặc hãng có kết quả xấu nhất. Đối chiếu với `base` để nêu cổng đã cải thiện gì, rồi chốt quyết định cùng bàn theo `decision_rule` đã ký.
 
 Xong v1 thì lưu và đẩy một bản (sau mốc này không sửa cột v1):
 

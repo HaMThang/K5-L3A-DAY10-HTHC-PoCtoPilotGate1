@@ -1,6 +1,6 @@
 # Phiếu C · Sự cố và quyết định v2 · Khối 3 (phút 125–200)
 
-**Bàn:** ______ · **Thẻ đã bốc:** ___ *(để trống tới phút 125; bốc số xong thì ghi đúng số đó, ví dụ `S3`. Lab Coach đối chiếu với sổ; lệnh tự kiểm tra in dòng này trong report.)*
+**Bàn:** HTHC · **Thẻ đã bốc:** ___ *(để trống tới phút 125; bốc số xong thì ghi đúng số đó, ví dụ `S3`. Lab Coach đối chiếu với sổ; lệnh tự kiểm tra in dòng này trong report.)*
 
 Mở `incidents/Sx/card.md` của đúng số đã bốc. Các bước trên thẻ trỏ về đúng mục trong phiếu này. Mục C3 chỉ điền phần ứng với
 số thẻ của bàn; các phần khác để trống.
@@ -249,9 +249,9 @@ Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chư
 
 ### Câu 3.2 · Một specification mà nếu bị vi phạm thì gây ra tác hại trên thẻ
 
-Kiểm được bằng code hoặc bằng một con số trong report: …
+**Chờ thẻ của bàn và báo cáo `prepared`.** Nguyễn Thế Hoàng chọn một tác hại đã quan sát, rồi viết yêu cầu theo mẫu: “Khi [điều kiện trên thẻ], trợ lý phải [hành vi có thể kiểm]. Trên [bộ thử], [chỉ số có đơn vị] phải [đạt giới hạn đã ký hoặc giới hạn vận hành áp dụng].”
 
-Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
+**Cách kiểm:** Ghi một `ticket@seed` hoặc một dòng báo cáo `prepared` làm bằng chứng vi phạm. Sau sửa, kiểm lại đúng hành vi hoặc chỉ số đó ở mốc `after` và lưu mã lần chạy. Nếu tác hại thuộc kinh doanh, chọn dòng đúng với vấn đề, ví dụ chi phí bình quân/ticket, tổng hoàn **tự động** trong ngày hoặc độ phủ pilot.
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
@@ -318,6 +318,8 @@ python3 -m lab10.grade --incident Sx
 | [1] | | | | | |
 | [2] | | | | | |
 | [3] | | | | | |
+
+**Phần Sản phẩm và Kinh doanh:** Nếu báo cáo quy được nguyên nhân về chi phí, phạm vi hoặc tiền hoàn, ghi một dòng trong bảng trên sau khi xác định đúng nhánh C6. Ghi khoá `business.*`, giá trị trước/sau, ticket nào về xử lý tay và mã `after` do người A cung cấp. Đối chiếu độ phủ, chi phí, ROI, hàng chờ và tổng hoàn tự động giữa `prepared` và `after`. Ví dụ, thu hẹp phạm vi giảm mức tiếp xúc của pilot, còn trần ngân sách hoàn tự động giới hạn tổng tiền qua luồng tự động. Kết luận giảm hay ngăn phải dựa vào tác hại cụ thể trên thẻ.
 
 ---
 
@@ -421,12 +423,12 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 | Commit ký tiêu chí | phải giống v1 |
 | Hash chốt cổng vòng 1 | phải giống v1 |
 | Mã lần chạy dùng làm bằng chứng | thẻ, mốc base: ________ · prepared: ________ · after: ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Chờ report cuối từ máy người A. Đối chiếu cả bộ nền và bộ thẻ ở mốc `after` với tiêu chí đã ký và các trần vận hành. |
 | Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Khối "theo kho và hãng" trong output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
 | Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | Ghi mã `prepared` và `after`, chỉ số đo tác hại trên thẻ, giá trị từng mốc và ngưỡng đã ký. |
+| Bằng chứng 2 | Ghi mã `after`, chi phí/ticket và ROI. So với ngưỡng đã ký và mức xử lý tay mô phỏng 10.000 đồng/ticket. |
+| Bằng chứng 3 | Ghi mã `after`, độ phủ pilot và một chỉ số rủi ro còn lại của kho hoặc hãng yếu nhất, chẳng hạn hàng chờ hoặc lỗi hãng oan. |
 | Khớp dòng nào trong `decision_rule` đã ký? | |
 | Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | |
 | Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | |
@@ -439,9 +441,9 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 - Report tự kiểm tra: mã lần chạy `__________` · ô nào còn đỏ (nguyên nhân × tầng): …
 - Cổng vòng 1 (mốc prepared) đã đỡ được gì trước khi bàn biết sự cố, và bỏ sót gì: …
 - Report ghi "được phép cân nhắc Tiếp tục" hay "không đủ căn cứ"? Quyết định của bàn có khớp không: …
-- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: …
+- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: Tải duyệt thực tế vào giờ cao điểm ở từng depot. Nếu ca trực xử lý chậm hơn mức mô phỏng 6 ca/giờ/người, phạm vi đạt trong bộ thử vẫn có thể khiến ca chờ quá 60 phút khi chạy thật.
 
 **Ba dòng bắt buộc** (chép nguyên ba câu này sang `submission/submission.json`, mục `three_lines`)
-1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: …
-2. Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: …
-3. Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: …
+1. **Dự thảo, đối chiếu với C5 câu 3.3 sau khi nhận thẻ:** Thiết kế đang dựa vào giả định một người duyệt xử lý được 6 ca/giờ. Ca thiếu chứng từ hoặc dồn đến cùng lúc có thể làm năng lực thực tế thấp hơn.
+2. **Chờ kết quả C7:** “Cổng [tên cổng] [giảm/ngăn] [tác hại trên thẻ] vì [cơ chế]. Chỉ số [tên, đơn vị] ở mốc prepared là [giá trị] và ở mốc after là [giá trị], theo [mã lần chạy].”
+3. **Dự thảo:** Trước Gate 2, đo chi phí bình quân/ticket gồm tiền máy, công duyệt, công kiểm lại và phí trực, đồng thời đo tỉ lệ ca chờ quá 60 phút theo depot và ca trực. Dùng số thực tế để kiểm tra mức tiết kiệm so với chi phí xử lý tay.
