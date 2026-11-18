@@ -24,8 +24,8 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
-- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): …
-- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): …
+- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): Cuối mỗi tuần, mọi dòng trợ lý ghi vào sổ cái (khoản hoàn tiền và lỗi ghi cho hãng) đều khớp với tracking và chính sách đang hiệu lực, có căn cứ truy được (`basis`, `approval_id` hợp lệ); không có khoản hoàn nào vượt tổng tiền đơn và không có lỗi oan nào ghi cho hãng mà chị phải gỡ ngược với hãng hoặc shop. Lý do: một lỗi oan làm hãng nhỏ mất tiền thật (GHSH bị phạt 150.000đ/lỗi, bị đình chỉ sau 3 lỗi trong 7 ngày, `world.json` → `carriers`) và chị Oanh là người phải gỡ.
+- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): Mỗi ca trợ lý chuyển sang được nhận xử lý trong 60 phút (`ops_limits.review_sla_minutes`), không ca nào bị ùn cuối ca; mỗi ca kèm lý do chuyển rõ ràng, đọc là quyết được; số ca chuyển sang không vượt sức duyệt của ca trực (6 ca/giờ/người, `ops_facts`), để đội không phải quay lại kiểm tay 100% quyết định tự động. Lý do: theo `staff_behavior`, nhân viên chỉ thôi kiểm lại toàn bộ khi có ghi chú giải thích, kiểm mẫu ≥ 10% và người duyệt đứng tên là `NV-HANH`.
 
 ---
 
@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | |
-| **Thước đo** (một câu, có đơn vị) | | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
-| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
+| **Bước / hành vi được đo** | Chọn phiên bản chính sách áp dụng cho ngày xử lý ticket (`policy` trong trace). | Lệnh ghi `file_carrier_fault`: trợ lý tự ghi lỗi cho hãng vận chuyển (bên ngoài LogiX chịu thiệt) |
+| **Thước đo** (một câu, có đơn vị) | Tỉ lệ lượt chạy chọn đúng `policy_id` có khoảng ngày hiệu lực chứa ngày xử lý ticket (% lượt chạy). | (1) Số lỗi trợ lý tự ghi cho mỗi hãng trong 7 ngày gần nhất (lỗi/hãng/7 ngày); (2) tỉ lệ lỗi tự ghi bị hãng khiếu nại hoặc bị kế toán gỡ khi đối soát (%) |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | Sự kiện `policy` trong trace của các lượt chạy trên bộ ticket nền (`runs/<mã lần chạy>/traces/`); bảng `policies` trong `data/world.json` làm nguồn chuẩn, đối chiếu `effective_from` và `effective_to`. Dùng toàn bộ ticket × seed có sự kiện `policy`; nhãn đúng được xác định trực tiếp từ ngày hiệu lực, không cần gán nhãn thủ công. | Sổ cái và nhật ký lệnh ghi `file_carrier_fault` (hãng, ticket, nguyên nhân trong tracking); khiếu nại hãng gửi về; danh sách lỗi chị Oanh (`NV-OANH`) gỡ khi đối soát tuần. Không có nhãn: khiếu nại và lỗi bị gỡ dùng thay nhãn. Toàn bộ lỗi tự ghi trong pilot (2 depot) |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Với mỗi lượt chạy, lấy `policy_id` từ sự kiện `policy` và tìm chính sách có `effective_from` ≤ ngày xử lý ≤ `effective_to` (nếu `effective_to` rỗng thì không có ngày kết thúc). Thước đo = số lượt khớp ÷ tổng lượt có sự kiện `policy` × 100%; lượt không tới bước này hoặc thiếu sự kiện được loại khỏi mẫu số và đếm riêng. | (1) Với mỗi hãng, đếm lỗi tự ghi trong cửa sổ trượt 7 ngày. (2) Tỉ lệ bị phản bác = số lỗi bị khiếu nại hoặc bị gỡ ÷ tổng lỗi tự ghi trong tuần. Lỗi chưa có phản hồi sau 7 ngày không đưa vào mẫu số, đếm riêng thành "chưa xác nhận" |
+| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | Tính lại mỗi giờ, cửa sổ trượt 7 ngày. **Báo đỏ** khi: một hãng chỉ còn 1 lỗi nữa là chạm mốc đình chỉ (`suspend_after_strikes_7d`, ví dụ GHSH hoặc DNB đạt 2 lỗi/7 ngày); hoặc một hãng bị ghi quá 2 lỗi/ngày (`ops_limits.max_auto_strikes_per_carrier_per_day`); hoặc có ≥ 1 lỗi bị phản bác. Báo đỏ thì báo kênh cảnh báo, `NV-TUNG` tắt `file_carrier_fault` |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | Đo đúng phiên bản chính sách được chọn, nhưng không chứng minh các điều khoản trong chính sách được diễn giải hoặc áp dụng đúng; cũng không phát hiện chính dữ liệu ngày hiệu lực bị cấu hình sai. | Hãng nhỏ không dám khiếu nại (sợ mất hợp đồng) thì lỗi oan vẫn không lộ ra; tín hiệu đến trễ vì phải chờ hãng phản hồi hoặc chờ đối soát cuối tuần; không thấy thiệt hại cho khách hay shop (hoàn sai tiền, lộ dữ liệu cá nhân) |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`

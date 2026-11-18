@@ -19,7 +19,44 @@ def escalation_rate(trials):
     return sum(t["status"] == "escalated" for t in trials) / max(1, len(trials))
 
 
+def model_override_rate(trials):
+    """Share of tickets where ticket text overrode the tracking DB delay."""
+    return sum(
+        any(e.get("type") == "model_override" and e.get("field") == "delay_days"
+            for e in (t.get("events") or []))
+        for t in trials
+    ) / max(1, len(trials))
+
+
+def carrier_fault_rate(trials):
+    """Share of tickets that triggered a carrier fault write."""
+    return sum(
+        any(e.get("type") == "tool" and e.get("tool") == "file_carrier_fault"
+            for e in (t.get("events") or []))
+        for t in trials
+    ) / max(1, len(trials))
+
+
+def pii_block_attempt_rate(trials):
+    """Share of tickets where the legal gate had to remove blocked fields."""
+    return sum(
+        any(e.get("type") == "legal_gate" and
+            e.get("gate") == "pii_fields_blocked_to_third_party" and e.get("dropped")
+            for e in (t.get("events") or []))
+        for t in trials
+    ) / max(1, len(trials))
+
+
+def queue_stuck_rate(trials):
+    """Share of tickets left stuck in the human review queue."""
+    return sum(bool(t.get("queue_stuck")) for t in trials) / max(1, len(trials))
+
+
 MONITORS = {
     "escalation_rate": escalation_rate,     # có sẵn; KHÔNG tính là metric mới của đội
+    "model_override_rate": model_override_rate,
+    "carrier_fault_rate": carrier_fault_rate,
+    "pii_block_attempt_rate": pii_block_attempt_rate,
+    "queue_stuck_rate": queue_stuck_rate,
 }
 STARTER_MONITORS = ("escalation_rate",)
