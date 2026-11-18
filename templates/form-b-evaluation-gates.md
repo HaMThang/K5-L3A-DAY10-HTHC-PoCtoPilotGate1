@@ -273,9 +273,9 @@ python3 -m unittest discover -s tests
 
 | # | Cổng (hàm và nhánh, ví dụ `write_gate` khi `tool == "issue_refund"`) | Ứng với dòng nào ở B6 / B4 | Chặn điều gì, dựa vào nguồn sự thật nào | Mã lần chạy `base · after` | Ca đang đúng nào bị hỏng? (phải là "không") |
 |---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
+| 1 | `write_gate` → `_refund_gate` (`issue_refund`): kiểm tra đơn đã hoàn, tính lại quyền lợi theo tracking và policy, xác thực phê duyệt; chặn vượt trần theo khách/ngày | B6 kỹ thuật và kinh doanh; B4 HAZOP `WRONG` | Dùng sổ cái, đơn, tracking DB, policy hiệu lực, mã phê duyệt và `ops_limits`; từ chối hoặc chuyển người nếu không xác minh được, không đủ quyền hay vượt trần | `R-base-after-20261118-164450-a80d7e` | Không |
+| 2 | `write_gate` → `_fault_gate` (`file_carrier_fault`): chỉ ghi đúng kiện/hãng khi tracking và policy xác nhận lỗi thuộc hãng; sửa độ trễ theo DB | B6 kỹ thuật; B6 pháp lý | Dùng kiện trong đơn, `delay_cause`, độ trễ DB và `fault_causes` của policy hiệu lực | `R-base-after-20261118-164450-a80d7e` | Không |
+| 3 | `write_gate` → `_notify_gate` / `_reply_gate`: chỉ gửi hãng các trường được policy cho phép; nội dung trả khách phải khớp sổ cái | B6 pháp lý; B4 HAZOP `PERTURBED` | Dùng `carrier_notice_fields` của policy và số tiền thực tế trong sổ cái | `R-base-after-20261118-164450-a80d7e` | Không |
 
 ### B7.2 · Câu 2.7 · Hai bước tránh rò rỉ dữ liệu
 
